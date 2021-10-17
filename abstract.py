@@ -1,3 +1,13 @@
+class Activity(object):
+    def process(self,engine):
+        None
+
+    def draw(self):
+        return None
+
+    def backgroundProcess(self,engine):
+        None
+
 class Display():
     k_width = 84
     k_height = 48

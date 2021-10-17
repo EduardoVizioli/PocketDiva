@@ -1,4 +1,4 @@
-from pcDisplay import PcDisplay
+from interfaces import PcDisplay, PcInput
 from PIL import Image
 import traceback
 import threading
@@ -29,9 +29,10 @@ class Engine():
 
         if mode == self.EngineModes.k_mode_pc:
             self.display = PcDisplay()
+            self.input = PcInput()
         else:
             raise NotImplementedError
-        
+
         self._start()
     
     def setActivity(self,activity_name):
@@ -82,7 +83,8 @@ class Engine():
         self.backgroundThread.start()
         print('Activities loaded.')
 
-    def stop(self):
+    def _stop(self):
+        print('Exiting...')
         self.running = False
     
     #Initializes the engine
@@ -93,7 +95,7 @@ class Engine():
             self.setActivity(k_main_activity)
             self._mainloop()
         except KeyboardInterrupt:
-            self.stop()
+            self._stop()
         except:
             print('_______ERROR_______')
             traceback.print_exc()
