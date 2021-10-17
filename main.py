@@ -1,3 +1,4 @@
+from PIL import Image
 import threading
 import time
 import os
@@ -16,16 +17,17 @@ class Engine():
         class ActivityNotFound(Exception):
             None
 
-    def __init__(self,updates_per_second,background_updates_per_second):
+    def __init__(self,updates_per_second,background_updates_per_second,mode):
         self.running = False
         self.activities = {}
         self.current_activity = None
         self.backgroundThread = None
         self.updates_per_second = updates_per_second
         self.background_updates_per_second = background_updates_per_second
+        self.mode = mode
         self._start()
     
-    def set_activity(self,activity_name):
+    def setActivity(self,activity_name):
         try:
             activity = self.activities[activity_name]
             self.current_activity = activity_name
@@ -53,7 +55,7 @@ class Engine():
             time.sleep((1/self.background_updates_per_second)-(end-start))
 
     #Loads activities from the folder
-    def _load_activities(self):
+    def _loadActivities(self):
         print('Loading activities...')
         for activity_name in os.listdir('./'+k_activities_folder):
             if activity_name[0] == '.':
@@ -68,21 +70,21 @@ class Engine():
         self.backgroundThread.start()
         print('Activities loaded.')
 
-    def _stop():
+    def _stop(self):
         self.running = False
     
     #Initializes the engine
     def _start(self):
         try:
             self.running = True
-            self._load_activities()
-            self.set_activity(k_main_activity)
+            self._loadActivities()
+            self.setActivity(k_main_activity)
             self._mainloop()
         except KeyboardInterrupt:
-            self.stop()
+            self._stop()
 
 def main():
-    engine = Engine(k_updates_per_second,k_background_updates_per_second)
+    engine = Engine(k_updates_per_second,k_background_updates_per_second,Engine.EngineModes.k_mode_pc)
 
 if __name__ == '__main__':
     main()

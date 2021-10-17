@@ -1,7 +1,5 @@
 class Activity(object):
-    def __init__(self):
-        None
-
+    
     def process(self,engine):
         None
 
