@@ -2,3 +2,5 @@
 activities/main/__pycache__/activity.cpython-37.pyc
 baseClasses/__pycache__/activity.cpython-37.pyc
 abstractClasses/__pycache__/activity.cpython-37.pyc
+__pycache__/pcDisplay.cpython-37.pyc
+abstractClasses/__pycache__/display.cpython-37.pyc

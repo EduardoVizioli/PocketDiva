@@ -1,4 +1,6 @@
+from pcDisplay import PcDisplay
 from PIL import Image
+import traceback
 import threading
 import time
 import os
@@ -24,7 +26,12 @@ class Engine():
         self.backgroundThread = None
         self.updates_per_second = updates_per_second
         self.background_updates_per_second = background_updates_per_second
-        self.mode = mode
+
+        if mode == self.EngineModes.k_mode_pc:
+            self.display = PcDisplay()
+        else:
+            raise NotImplementedError
+        
         self._start()
     
     def setActivity(self,activity_name):
@@ -42,9 +49,12 @@ class Engine():
                 activity = self.activities[self.current_activity]
                 activity.process(self)
                 image = activity.draw()
+                self.display.drawImage(image)
 
             end = time.time()
-            time.sleep((1/self.updates_per_second)-(end-start))
+            wait = (1/self.updates_per_second)-(end-start)
+            if wait > 0:
+                time.sleep(wait)
 
     def _backgroundProcesses(self):
         while self.running:
@@ -52,7 +62,9 @@ class Engine():
             for activity_name in self.activities:
                 self.activities[activity_name].backgroundProcess(self)
             end = time.time()
-            time.sleep((1/self.background_updates_per_second)-(end-start))
+            wait = (1/self.background_updates_per_second)-(end-start)
+            if wait > 0:
+                time.sleep(wait)
 
     #Loads activities from the folder
     def _loadActivities(self):
@@ -70,7 +82,7 @@ class Engine():
         self.backgroundThread.start()
         print('Activities loaded.')
 
-    def _stop(self):
+    def stop(self):
         self.running = False
     
     #Initializes the engine
@@ -81,6 +93,11 @@ class Engine():
             self.setActivity(k_main_activity)
             self._mainloop()
         except KeyboardInterrupt:
+            self.stop()
+        except:
+            print('_______ERROR_______')
+            traceback.print_exc()
+            print('___________________')
             self._stop()
 
 def main():
