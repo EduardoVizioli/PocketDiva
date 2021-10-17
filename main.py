@@ -1,8 +1,11 @@
+import threading
 import time
 import os
 
 k_activities_folder = 'activities'
 k_main_activity = 'main'
+k_updates_per_second = 10
+k_background_updates_per_second = 1
 
 class Engine():
     class EngineModes():
@@ -13,11 +16,13 @@ class Engine():
         class ActivityNotFound(Exception):
             None
 
-    def __init__(self,fps):
+    def __init__(self,updates_per_second,background_updates_per_second):
         self.running = False
         self.activities = {}
         self.current_activity = None
-        self.fps = fps
+        self.backgroundThread = None
+        self.updates_per_second = updates_per_second
+        self.background_updates_per_second = background_updates_per_second
         self._start()
     
     def set_activity(self,activity_name):
@@ -27,21 +32,25 @@ class Engine():
         except IndexError:
             raise EngineExceptions.ActivityNotFound
 
-
     #Main loop, all logic starts here
     def _mainloop(self):
         while self.running:
             start = time.time()
             if self.current_activity != None:
                 activity = self.activities[self.current_activity]
-                activity.process()
+                activity.process(self)
                 image = activity.draw()
-            
-            for activity_name in self.activities:
-                self.activities[activity_name].backgroundProcess()
 
             end = time.time()
-            time.sleep((1/self.fps)-(end-start))
+            time.sleep((1/self.updates_per_second)-(end-start))
+
+    def _backgroundProcesses(self):
+        while self.running:
+            start = time.time()
+            for activity_name in self.activities:
+                self.activities[activity_name].backgroundProcess(self)
+            end = time.time()
+            time.sleep((1/self.background_updates_per_second)-(end-start))
 
     #Loads activities from the folder
     def _load_activities(self):
@@ -54,17 +63,26 @@ class Engine():
             activity = __import__(k_activities_folder+'.'+activity_name+'.activity',fromlist=[None]).Main()
             print('Activity ('+activity_name+') loaded')
             self.activities[activity_name] = activity
+        print('Starting background processes')
+        self.backgroundThread = threading.Thread(target=self._backgroundProcesses, args=[])
+        self.backgroundThread.start()
         print('Activities loaded.')
+
+    def _stop():
+        self.running = False
     
     #Initializes the engine
     def _start(self):
-        self.running = True
-        self._load_activities()
-        self.set_activity(k_main_activity)
-        self._mainloop()
+        try:
+            self.running = True
+            self._load_activities()
+            self.set_activity(k_main_activity)
+            self._mainloop()
+        except KeyboardInterrupt:
+            self.stop()
 
 def main():
-    engine = Engine(3)
+    engine = Engine(k_updates_per_second,k_background_updates_per_second)
 
 if __name__ == '__main__':
     main()
