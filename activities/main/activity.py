@@ -6,7 +6,7 @@ class Main(Activity):
         None
 
     def process(self,engine):
-        None
+        print(engine.input.readBuffer())
 
     def draw(self):
         image = Image.new("1", (Display.k_width, Display.k_height))

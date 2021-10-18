@@ -1,4 +1,4 @@
-from abstract import Display
+from abstract import Display, Input
 import numpy
 import cv2
 
@@ -17,5 +17,23 @@ class PcDisplay(Display):
         if cv2.getWindowProperty('Pocket Diva', 0) == -1:
             raise KeyboardInterrupt
 
-class PcInput():
-    None
+class PcInput(Input):
+    def __init__(self):
+        from pynput.keyboard import Key, Listener
+        self.listener = Listener(on_press=self.key_press) 
+        self.listener.start()
+        self.buffer = []
+        self.key = Key
+
+    def key_press(self,key):
+        if key == self.key.left:
+            self.buffer.append(self.Buttons.k_left)
+        elif key == self.key.down:
+            self.buffer.append(self.Buttons.k_center)
+        elif key == self.key.right:
+            self.buffer.append(self.Buttons.k_right)
+
+    def readBuffer(self):
+        buffer = self.buffer.copy()
+        self.buffer = []
+        return buffer

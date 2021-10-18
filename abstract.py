@@ -11,7 +11,7 @@ class Activity(object):
 class Display():
     k_width = 84
     k_height = 48
-    class BackligtStates():
+    class BacklightStates():
         k_on = True
         k_off = False
 
@@ -22,4 +22,13 @@ class Display():
         raise NotImplementedError
 
     def backlightToggle(self,state):
+        raise NotImplementedError
+
+class Input():
+    class Buttons():
+        k_left = 0
+        k_center = 1
+        k_right = 2
+    
+    def readBuffer(self):
         raise NotImplementedError
