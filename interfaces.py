@@ -37,3 +37,9 @@ class PcInput(Input):
         buffer = self.buffer.copy()
         self.buffer = []
         return buffer
+    
+    def getKey(self):
+        try:
+            return self.buffer.pop()
+        except IndexError:
+            return None

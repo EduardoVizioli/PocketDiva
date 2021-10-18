@@ -1,4 +1,7 @@
 class Activity(object):
+    def __init__(self,engine):
+        None
+    
     def process(self,engine):
         None
 
@@ -31,4 +34,7 @@ class Input():
         k_right = 2
     
     def readBuffer(self):
+        raise NotImplementedError
+    
+    def getKey(self):
         raise NotImplementedError

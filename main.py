@@ -7,7 +7,7 @@ import os
 
 k_activities_folder = 'activities'
 k_main_activity = 'main'
-k_updates_per_second = 10
+k_updates_per_second = 4
 k_background_updates_per_second = 1
 
 class Engine():
