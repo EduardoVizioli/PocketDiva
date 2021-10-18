@@ -26,11 +26,11 @@ class PcInput(Input):
         self.key = Key
 
     def key_press(self,key):
-        if key == self.key.left:
+        if key == self.key.left and self.Buttons.k_left not in self.buffer:
             self.buffer.append(self.Buttons.k_left)
-        elif key == self.key.down:
+        elif key == self.key.down and self.Buttons.k_center not in self.buffer:
             self.buffer.append(self.Buttons.k_center)
-        elif key == self.key.right:
+        elif key == self.key.right and self.Buttons.k_right not in self.buffer:
             self.buffer.append(self.Buttons.k_right)
 
     def readBuffer(self):

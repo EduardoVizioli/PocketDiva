@@ -7,7 +7,7 @@ import os
 
 k_activities_folder = 'activities'
 k_main_activity = 'main'
-k_updates_per_second = 4
+k_updates_per_second = 6
 k_background_updates_per_second = 1
 
 class Engine():
@@ -71,7 +71,7 @@ class Engine():
     def _loadActivities(self):
         print('Loading activities...')
         for activity_name in os.listdir('./'+k_activities_folder):
-            if activity_name[0] == '.':
+            if activity_name.find('.') != -1:
                 continue
             
             print(k_activities_folder+'.'+activity_name+'.activity')
