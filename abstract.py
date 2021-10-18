@@ -1,3 +1,4 @@
+#Defines how an activity should look like
 class Activity(object):
     def __init__(self,engine):
         None
@@ -11,6 +12,7 @@ class Activity(object):
     def backgroundProcess(self,engine):
         None
 
+#Defines the base characteristics of the display.
 class Display():
     k_width = 84
     k_height = 48
@@ -27,6 +29,7 @@ class Display():
     def backlightToggle(self,state):
         raise NotImplementedError
 
+#Defines the base characteristics of the input device.
 class Input():
     class Buttons():
         k_left = 0

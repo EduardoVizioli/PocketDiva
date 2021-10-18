@@ -10,15 +10,21 @@ k_main_activity = 'main'
 k_updates_per_second = 6
 k_background_updates_per_second = 1
 
+#This is the engine, it is responsible for controling the activities and its tasks
 class Engine():
+    #The engine can run in two modes
+    #pc mode = running on a pc, displaying on a window and receiving inputs from the keyboard.
+    #pocket mode = running on a raspberry pi, displaying on a 84x48 PCD8544 display and receiving inputs from gpio buttons. (TODO)
     class EngineModes():
         k_mode_pocket = 0
         k_mode_pc = 1
     
+    #Exception the engine can throw when something goes wrong.
     class EngineExceptions():
         class ActivityNotFound(Exception):
             None
 
+    #Sets engine variables and defines the engine mode (PC or Pocket)
     def __init__(self,updates_per_second,background_updates_per_second,mode):
         self.running = False
         self.activities = {}
@@ -35,6 +41,7 @@ class Engine():
 
         self._start()
     
+    #Sets de current activity that is being displayed to the user
     def setActivity(self,activity_name):
         try:
             activity = self.activities[activity_name]
@@ -42,7 +49,7 @@ class Engine():
         except IndexError:
             raise EngineExceptions.ActivityNotFound
 
-    #Main loop, all logic starts here
+    #The main loop is responsible for processing, drawing and timming of the current activity.
     def _mainloop(self):
         while self.running:
             start = time.time()
@@ -57,6 +64,7 @@ class Engine():
             if wait > 0:
                 time.sleep(wait)
 
+    #The background processes run on a separate thread, it stays running all the time and is responsible for processing and timming of the modules background tasks.
     def _backgroundProcesses(self):
         while self.running:
             start = time.time()
@@ -67,7 +75,7 @@ class Engine():
             if wait > 0:
                 time.sleep(wait)
 
-    #Loads activities from the folder
+    #Loads all activities into the memory and starts the thread for the background processes
     def _loadActivities(self):
         print('Loading activities...')
         for activity_name in os.listdir('./'+k_activities_folder):
@@ -83,6 +91,7 @@ class Engine():
         self.backgroundThread.start()
         print('Activities loaded.')
 
+    #Sends a signal to the engine to stop
     def _stop(self):
         print('Exiting...')
         self.running = False
