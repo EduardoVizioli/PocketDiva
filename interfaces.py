@@ -104,6 +104,12 @@ class RaspiDisplay(Display):
         self.gpio.output(self.SpiInfo.k_dc,self.gpio.HIGH)
         self.device.writebytes(self.buffer)
 
+    def set_display_inverted(self):
+        self.command(self.DisplayCommands.k_pcd8544_displaycontrol | self.DisplayCommands.k_pcd8544_displayinverted)
+
+    def set_display_normal(self):
+        self.command(self.DisplayCommands.k_pcd8544_displaycontrol | self.DisplayCommands.k_pcd8544_displaynormal)
+
     def drawImage(self,image):
         if image.mode != '1':
             raise ValueError('Image must be in mode 1.')
@@ -123,7 +129,7 @@ class RaspiDisplay(Display):
                 # Update buffer byte and increment to next byte.
                 self.buffer[index] = bits
                 index += 1
-
+        
         self.display_buffer()
 
 class PcInput(Input):
