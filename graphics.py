@@ -5,7 +5,8 @@ k_font_dir = './textures/fonts'
 class TextDraw():
     def text(image,string,x,y,scale=1):
         text_image = None
-
+        string = str(string)
+        
         for char in string:
             if text_image:
                 char_img = Image.open(k_font_dir+'/'+char.lower()+'.bmp')

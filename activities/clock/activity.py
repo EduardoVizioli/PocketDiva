@@ -10,10 +10,23 @@ class Main(Activity):
 
         def draw(self,draw,image):
             now = datetime.now()
-            TextDraw.text(image,now.strftime("%H@%M"),6,16,scale=3)
+            TextDraw.text(image,now.strftime("%H@%M"),6,18,scale=3)
 
-    def __init__(self):
+    def __init__(self,engine):
         self.clock = self.Clock()
+        self.engine = engine
+
+    class Battery():
+        def __init__(self,engine):
+            self.engine = engine
+
+        def draw(self,draw,image):
+            TextDraw.text(image,self.engine.battery.getPercentage(),68,1)
+
+    def __init__(self,engine):
+        self.clock = self.Clock()
+        self.battery = self.Battery(engine)
+        self.engine = engine
 
     def process(self,engine):
         key_pressed = engine.input.getKey()
@@ -33,6 +46,7 @@ class Main(Activity):
         draw.rectangle((0,0,Display.k_width,Display.k_height), outline=255, fill=255)
         
         self.clock.draw(draw,image)
+        self.battery.draw(draw,image)
 
         return image
 

@@ -1,4 +1,4 @@
-from interfaces import PcDisplay, PcInput, RaspiDisplay, RaspiInput
+from interfaces import PcDisplay, PcInput, PcBattery, RaspiDisplay, RaspiInput, RaspiBattery
 from PIL import Image
 import traceback
 import threading
@@ -36,9 +36,11 @@ class Engine():
         if mode == self.EngineModes.k_mode_pc:
             self.display = PcDisplay()
             self.input = PcInput()
+            self.battery = PcBattery()
         else:
             self.display = RaspiDisplay()
             self.input = RaspiInput()
+            self.battery = RaspiBattery()
 
         self._start()
     
@@ -84,7 +86,7 @@ class Engine():
                 continue
             
             print(k_activities_folder+'.'+activity_name+'.activity')
-            activity = __import__(k_activities_folder+'.'+activity_name+'.activity',fromlist=[None]).Main()
+            activity = __import__(k_activities_folder+'.'+activity_name+'.activity',fromlist=[None]).Main(self)
             print('Activity ('+activity_name+') loaded')
             self.activities[activity_name] = activity
         print('Starting background processes')

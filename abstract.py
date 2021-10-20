@@ -31,3 +31,8 @@ class Input():
     
     def getKey(self):
         raise NotImplementedError
+
+
+class Battery():
+    def getPercentage(self):
+        raise NotImplementedError

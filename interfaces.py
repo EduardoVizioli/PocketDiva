@@ -1,4 +1,4 @@
-from abstract import Display, Input
+from abstract import Display, Input, Battery
 import numpy
 import time
 
@@ -208,3 +208,28 @@ class RaspiInput(Input):
             return self.buffer.pop()
         except IndexError:
             return None
+
+
+class PcBattery(Battery):
+    def __init__(self):
+        import psutil
+        self.psutil = psutil
+    
+    def getPercentage(self):
+        return int(self.psutil.sensors_battery().percent)
+
+class RaspiBattery(Battery):
+    def __init__(self):
+        import smbus
+        import struct
+        self.smbus = smbus
+        self.struct = struct
+        self.bus = self.smbus.SMBus(1)
+    
+    def getPercentage(self):
+        #This function returns as a float the remaining capacity of the battery connected to the Raspi UPS Hat via the provided SMBus object"
+        address = 0x36
+        read = self.bus.read_word_data(address, 0X04)
+        swapped = self.struct.unpack("<H", self.struct.pack(">H", read))[0]
+        capacity = swapped/256
+        return int(capacity)

@@ -13,13 +13,23 @@ class Main(Activity):
                 now = datetime.now()
                 TextDraw.text(image,now.strftime("%H@%M"),1,1)
 
-        def __init__(self):
+        class Battery():
+            def __init__(self,engine):
+                self.engine = engine
+
+            def draw(self,draw,image):
+                TextDraw.text(image,self.engine.battery.getPercentage(),68,1)
+
+        def __init__(self,engine):
             self.line = (0,7,84,7)
             self.clock = self.Clock()
+            self.battery = self.Battery(engine)
+            self.engine = engine
         
         def draw(self,draw,image):
             draw.line(self.line, fill=0)
             self.clock.draw(draw,image)
+            self.battery.draw(draw,image)
 
     class Dock():
         def __init__(self):
@@ -63,8 +73,9 @@ class Main(Activity):
         def draw(self,draw,image):
             None
 
-    def __init__(self):
-        self.statusBar = self.StatusBar()
+    def __init__(self,engine):
+        self.engine = engine
+        self.statusBar = self.StatusBar(engine)
         self.dock = self.Dock()
         self.miku = self.Miku()
 
