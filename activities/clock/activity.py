@@ -36,9 +36,11 @@ class Main(Activity):
         if key_pressed['key'] == engine.input.Buttons.k_bottom:
             engine.setActivity('main')
             
-
     def backgroundProcess(self,engine):
         None
+
+    def switch(self,engine):
+        engine.setUpdatesPerSecond(1)
 
     def draw(self):
         image = Image.new("1", (Display.k_width, Display.k_height))

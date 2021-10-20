@@ -52,6 +52,7 @@ class Engine():
     def setActivity(self,activity_name):
         try:
             activity = self.activities[activity_name]
+            activity.switch(self)
             self.current_activity = activity_name
         except KeyError:
             raise self.EngineExceptions.ActivityNotFound
@@ -72,6 +73,9 @@ class Engine():
             wait = (1/self.updates_per_second)-(end-start)
             if wait > 0:
                 time.sleep(wait)
+
+    def setUpdatesPerSecond(self,upds):
+        self.updates_per_second = upds
 
     #The background processes run on a separate thread, it stays running all the time and is responsible for processing and timming of the modules background tasks.
     def _backgroundProcesses(self):

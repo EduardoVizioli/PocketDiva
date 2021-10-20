@@ -149,6 +149,9 @@ class Main(Activity):
     def backgroundProcess(self,engine):
         None
 
+    def switch(self,engine):
+        engine.setUpdatesPerSecond(4)
+
     def draw(self):
         image = Image.new("1", (Display.k_width, Display.k_height))
         draw = ImageDraw.Draw(image)

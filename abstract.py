@@ -11,6 +11,9 @@ class Activity(object):
 
     def backgroundProcess(self,engine):
         None
+    
+    def switch(self,engine):
+        None
 
 #Defines the base characteristics of the display.
 class Display():
