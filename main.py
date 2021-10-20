@@ -38,8 +38,12 @@ class Engine():
             self.input = PcInput()
             self.battery = PcBattery()
         else:
-            self.display = RaspiDisplay()
-            self.input = RaspiInput()
+            import RPi.GPIO as GPIO
+            self.gpio = GPIO
+            self.gpio.setmode(self.gpio.BCM)
+            self.gpio.setwarnings(False)
+            self.display = RaspiDisplay(self)
+            self.input = RaspiInput(self)
             self.battery = RaspiBattery()
 
         self._start()

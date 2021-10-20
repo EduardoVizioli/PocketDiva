@@ -42,12 +42,9 @@ class RaspiDisplay(Display):
         k_pcd8544_setbias = 0x10
         k_pcd8544_setvop = 0x80
 
-    def __init__(self):
+    def __init__(self,engine):
         import spidev
-        import RPi.GPIO as GPIO
-        self.gpio = GPIO
-        self.gpio.setmode(self.gpio.BCM)
-        self.gpio.setwarnings(False)
+        self.gpio = engine.gpio
         self.gpio.setup(self.SpiInfo.k_rst,self.gpio.OUT)
         self.gpio.setup(self.SpiInfo.k_dc,self.gpio.OUT)
         self.spidev = spidev
@@ -174,9 +171,8 @@ class RaspiInput(Input):
         k_top = 17
         k_bottom = 27
 
-    def __init__(self):
-        import RPi.GPIO as GPIO
-        self.gpio = GPIO
+    def __init__(self,engine):
+        self.gpio = engine.gpio
         self.gpio_buttons = [self.Buttons.k_top,self.Buttons.k_bottom]
         self.gpio_setup()
         self.buffer = []
@@ -184,8 +180,6 @@ class RaspiInput(Input):
         self.max_hold = 10
 
     def gpio_setup(self):
-        self.gpio.setwarnings(False)
-        self.gpio.setmode(self.gpio.BCM)
         for button in self.gpio_buttons:
             self.gpio.setup(button, self.gpio.IN, pull_up_down=self.gpio.PUD_DOWN)
             self.gpio.add_event_detect(button,self.gpio.RISING,callback=self.key_press)
@@ -214,7 +208,6 @@ class RaspiInput(Input):
             return self.buffer.pop()
         except IndexError:
             return None
-
 
 class PcBattery(Battery):
     def __init__(self):

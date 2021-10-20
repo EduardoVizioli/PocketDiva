@@ -38,7 +38,6 @@ class Main(Activity):
             self.dock_height = 10
         
         def next(self):
-            print(self.selected_action)
             if self.selected_action < self.dock_actions_cnt - 1:
                 self.selected_action = self.selected_action + 1
             else:
