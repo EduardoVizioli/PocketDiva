@@ -52,7 +52,10 @@ class Main(Activity):
                 self.selected_action = 0
 
         def select(self,engine):
-            engine.setActivity(self.data['apps'][self.selected_action])
+            try:
+                engine.setActivity(self.data['apps'][self.selected_action])
+            except engine.EngineExceptions.ActivityNotFound:
+                None
         
         def draw(self,draw,image):
             for i in range(0,self.dock_actions_cnt):

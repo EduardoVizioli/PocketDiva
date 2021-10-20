@@ -53,8 +53,10 @@ class Engine():
         try:
             activity = self.activities[activity_name]
             self.current_activity = activity_name
+        except KeyError:
+            raise self.EngineExceptions.ActivityNotFound
         except IndexError:
-            raise EngineExceptions.ActivityNotFound
+            raise self.EngineExceptions.ActivityNotFound
 
     #The main loop is responsible for processing, drawing and timming of the current activity.
     def _mainloop(self):
