@@ -1,4 +1,4 @@
-from abstract import Activity, Display, Input
+from abstract import Activity, Display
 from PIL import Image, ImageDraw
 from graphics import TextDraw
 from datetime import datetime
@@ -24,23 +24,20 @@ class Main(Activity):
     class Dock():
         def __init__(self):
             self.selected_action = 0
-            self.dock_actions_cnt = 5
+            self.dock_actions_cnt = 6
             self.dock_height = 10
         
         def next(self):
+            print(self.selected_action)
             if self.selected_action < self.dock_actions_cnt - 1:
                 self.selected_action = self.selected_action + 1
-        
-        def previous(self):
-            if self.selected_action > 0:
-                self.selected_action = self.selected_action - 1
+            else:
+                self.selected_action = 0
 
         def select(self):
             print("selected:"+str(self.selected_action))
         
         def draw(self,draw,image):
-            
-            #draw.rectangle((0,48,42,38),outline=0,fill=255)
             for i in range(0,self.dock_actions_cnt):
                 icon_width = (Display.k_width/self.dock_actions_cnt)
                 left_start = i*icon_width
@@ -50,25 +47,39 @@ class Main(Activity):
                 fill = 255
                 if i == self.selected_action:
                     fill = 0
+                
+                if i == self.dock_actions_cnt-1:
+                    left_end = left_end - 1
 
                 draw.rectangle((left_start,bottom_start,left_end,bottom_end),outline=0,fill=fill)
-                
+
+    class Miku():
+        def __init__(self):
+            None
+
+        def process(self):
+            None
+        
+        def draw(self,draw,image):
+            None
 
     def __init__(self):
         self.statusBar = self.StatusBar()
         self.dock = self.Dock()
+        self.miku = self.Miku()
 
     def process(self,engine):
         key_pressed = engine.input.getKey()
         if key_pressed == None:
             return
 
-        if key_pressed == Input.Buttons.k_left:
-            self.dock.previous()
-        elif key_pressed == Input.Buttons.k_center:
-            self.dock.select()
-        elif key_pressed == Input.Buttons.k_right:
+        if key_pressed['key'] == engine.input.Buttons.k_top:
             self.dock.next()
+        elif key_pressed['key'] == engine.input.Buttons.k_bottom:
+            self.dock.select()
+
+    def backgroundProcess(self,engine):
+        None
 
     def draw(self):
         image = Image.new("1", (Display.k_width, Display.k_height))
@@ -77,6 +88,8 @@ class Main(Activity):
         
         self.statusBar.draw(draw,image)
         self.dock.draw(draw,image)
+        self.miku.process()
+        self.miku.draw(draw,image)
 
         return image
 

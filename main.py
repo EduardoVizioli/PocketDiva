@@ -1,4 +1,4 @@
-from interfaces import PcDisplay, PcInput
+from interfaces import PcDisplay, PcInput, RaspiDisplay, RaspiInput
 from PIL import Image
 import traceback
 import threading
@@ -6,8 +6,8 @@ import time
 import os
 
 k_activities_folder = 'activities'
-k_main_activity = 'main'
-k_updates_per_second = 6
+k_main_activity = 'clock'
+k_updates_per_second = 2
 k_background_updates_per_second = 1
 
 #This is the engine, it is responsible for controling the activities and its tasks
@@ -37,7 +37,8 @@ class Engine():
             self.display = PcDisplay()
             self.input = PcInput()
         else:
-            raise NotImplementedError
+            self.display = RaspiDisplay()
+            self.input = RaspiInput()
 
         self._start()
     
@@ -112,7 +113,14 @@ class Engine():
             self._stop()
 
 def main():
-    engine = Engine(k_updates_per_second,k_background_updates_per_second,Engine.EngineModes.k_mode_pc)
-
+    try:
+        uname = os.uname()
+        if uname.nodename == 'raspberrypi':
+            engine = Engine(k_updates_per_second,k_background_updates_per_second,Engine.EngineModes.k_mode_pocket)
+        else:
+            engine = Engine(k_updates_per_second,k_background_updates_per_second,Engine.EngineModes.k_mode_pc)
+    except AttributeError:
+        engine = Engine(k_updates_per_second,k_background_updates_per_second,Engine.EngineModes.k_mode_pc)
+    
 if __name__ == '__main__':
     main()

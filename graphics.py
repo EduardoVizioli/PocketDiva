@@ -3,7 +3,7 @@ from PIL import Image
 k_font_dir = './textures/fonts'
 
 class TextDraw():
-    def text(image,string,x,y):
+    def text(image,string,x,y,scale=1):
         text_image = None
 
         for char in string:
@@ -16,6 +16,9 @@ class TextDraw():
             else:
                 text_image = Image.open(k_font_dir+'/'+char.lower()+'.bmp')
         
+        if scale != 1:
+            text_image = text_image.resize((text_image.width*scale,text_image.height*scale))
+
         image.paste(text_image,(x,y))
 
 
