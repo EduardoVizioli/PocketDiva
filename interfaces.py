@@ -55,9 +55,9 @@ class RaspiDisplay(Display):
         #self.device.cshigh = False
         self.buffer = [0] * (Display.k_width * Display.k_height // 8)
         self.reset()
-        self.set_bias(4)
-        self.set_contrast(60)
-        self.display_buffer()
+        self.setBias(4)
+        self.setContrast(60)
+        self.displayBuffer()
     
     def reset(self):
         self.gpio.output(self.SpiInfo.k_rst,self.gpio.LOW)
@@ -68,7 +68,7 @@ class RaspiDisplay(Display):
         self.gpio.output(self.SpiInfo.k_dc,self.gpio.LOW)
         self.device.writebytes([command])
 
-    def extended_command(self, command):
+    def extendedCommand(self, command):
         #Set extended command mode
         self.command(self.DisplayCommands.k_pcd8544_functionset | self.DisplayCommands.k_pcd8544_extendedinstruction)
 
@@ -79,32 +79,32 @@ class RaspiDisplay(Display):
         self.command(self.DisplayCommands.k_pcd8544_functionset)
         self.command(self.DisplayCommands.k_pcd8544_displaycontrol | self.DisplayCommands.k_pcd8544_displaynormal)
 
-    def set_bias(self, bias):
-        self.extended_command(self.DisplayCommands.k_pcd8544_setbias | bias)
+    def setBias(self, bias):
+        self.extendedCommand(self.DisplayCommands.k_pcd8544_setbias | bias)
 
-    def set_contrast(self, contrast):
+    def setContrast(self, contrast):
         if contrast > 127:
             contrast = 127
         
         if contrast < 0:
             contrast = 0
         
-        self.extended_command(self.DisplayCommands.k_pcd8544_setvop | contrast)
+        self.extendedCommand(self.DisplayCommands.k_pcd8544_setvop | contrast)
     
     def clear(self):
         self.buffer = [0] * (Display.k_width * Display.k_height // 8)
 
-    def display_buffer(self):
+    def displayBuffer(self):
         self.command(self.DisplayCommands.k_pcd8544_setyaddr)
         self.command(self.DisplayCommands.k_pcd8544_setxaddr)
         # Write the buffer.
         self.gpio.output(self.SpiInfo.k_dc,self.gpio.HIGH)
         self.device.writebytes(self.buffer)
 
-    def set_display_inverted(self):
+    def setDisplayInverted(self):
         self.command(self.DisplayCommands.k_pcd8544_displaycontrol | self.DisplayCommands.k_pcd8544_displayinverted)
 
-    def set_display_normal(self):
+    def setDisplayNormal(self):
         self.command(self.DisplayCommands.k_pcd8544_displaycontrol | self.DisplayCommands.k_pcd8544_displaynormal)
 
     def drawImage(self,image):
@@ -127,30 +127,29 @@ class RaspiDisplay(Display):
                 self.buffer[index] = bits
                 index += 1
         
-        self.display_buffer()
+        self.displayBuffer()
 
 class PcInput(Input):
     def __init__(self):
         from pynput.keyboard import Key, Listener
-        self.listener = Listener(on_press=self.key_press,on_release=self.key_release) 
+        self.listener = Listener(on_press=self.keyPress,on_release=self.keyRelease) 
         self.listener.start()
         self.buffer = []
         self.key_time = {}
         self.key = Key
 
-    def key_press(self,key):
+    def keyPress(self,key):
         try:
             if self.key_time[key] == 0:
                 self.key_time[key] = time.time()
         except KeyError:
             self.key_time[key] = time.time()
 
-    def key_release(self,key):
+    def keyRelease(self,key):
         press_time = time.time() - self.key_time[key]
         self.key_time[key] = 0
 
         if key == self.key.up and self.Buttons.k_top not in self.buffer:
-            print('up')
             self.buffer.append({'key':self.Buttons.k_top,'time':press_time})
         elif key == self.key.down and self.Buttons.k_bottom not in self.buffer:
             self.buffer.append({'key':self.Buttons.k_bottom,'time':press_time})
@@ -174,17 +173,17 @@ class RaspiInput(Input):
     def __init__(self,engine):
         self.gpio = engine.gpio
         self.gpio_buttons = [self.Buttons.k_top,self.Buttons.k_bottom]
-        self.gpio_setup()
+        self.gpioSetup()
         self.buffer = []
         self.noise_threshold = 0.01
         self.max_hold = 10
 
-    def gpio_setup(self):
+    def gpioSetup(self):
         for button in self.gpio_buttons:
             self.gpio.setup(button, self.gpio.IN, pull_up_down=self.gpio.PUD_DOWN)
-            self.gpio.add_event_detect(button,self.gpio.RISING,callback=self.key_press)
+            self.gpio.add_event_detect(button,self.gpio.RISING,callback=self.keyPress)
 
-    def key_press(self,key):
+    def keyPress(self,key):
         start_time = time.time()
 
         while self.gpio.input(key) == 1: # Wait for the button up
@@ -192,7 +191,6 @@ class RaspiInput(Input):
             
         press_time = time.time() - start_time
         if press_time < self.max_hold and press_time > self.noise_threshold:
-            print(press_time)
             if key == self.Buttons.k_top and self.Buttons.k_top not in self.buffer:
                 self.buffer.append({'key':self.Buttons.k_top,'time':press_time})
             elif key == self.Buttons.k_bottom and self.Buttons.k_bottom not in self.buffer:

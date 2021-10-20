@@ -7,7 +7,7 @@ import os
 
 k_activities_folder = 'activities'
 k_main_activity = 'clock'
-k_updates_per_second = 2
+k_updates_per_second = 4
 k_background_updates_per_second = 1
 
 #This is the engine, it is responsible for controling the activities and its tasks
