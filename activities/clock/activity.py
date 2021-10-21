@@ -2,30 +2,24 @@ from abstract import Activity, Display
 from PIL import Image, ImageDraw
 from graphics import TextDraw
 from datetime import datetime
+from widgets import Battery
 
 class Main(Activity):
     class Clock():
         def __init__(self):
-            None
+            self.text_draw = TextDraw()
 
         def draw(self,draw,image):
             now = datetime.now()
-            TextDraw.text(image,now.strftime("%H@%M"),6,18,scale=3)
+            self.text_draw.text(image,now.strftime("%H@%M"),6,18,scale=3)
 
     def __init__(self,engine):
         self.clock = self.Clock()
         self.engine = engine
 
-    class Battery():
-        def __init__(self,engine):
-            self.engine = engine
-
-        def draw(self,draw,image):
-            TextDraw.text(image,self.engine.battery.getPercentage(),68,1)
-
     def __init__(self,engine):
         self.clock = self.Clock()
-        self.battery = self.Battery(engine)
+        self.battery = Battery(engine)
         self.engine = engine
 
     def process(self,engine):

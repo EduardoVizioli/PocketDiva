@@ -1,7 +1,6 @@
 from abstract import Activity, Display
 from PIL import Image, ImageDraw, ImageOps
 from widgets import StatusBar
-from graphics import TextDraw
 from utils import Utils
 import random
 import json
@@ -12,10 +11,26 @@ class Main(Activity):
         def __init__(self):
             self.selected_action = 0
             self.dock_height = 10
-            with open('./data/dock.json') as json_file:
+            self.data_file = './data/dock.json'
+            with open(self.data_file) as json_file:
                 self.data = json.load(json_file)
-            
+            self.activity_icons = {}
+            self._load_icons()
             self.dock_actions_cnt = len(self.data['apps'])
+
+        def _load_icons(self):
+            for app in self.data['apps']:
+                try:
+                    icon = Image.open('./activities/'+app+'/icon.bmp')
+                    self.activity_icons[app] = {
+                        'normal':icon,
+                        'inverted':ImageOps.invert(icon)
+                    }
+                except FileNotFoundError:
+                    self.activity_icons[app] = {
+                        'normal':None,
+                        'inverted':None
+                    }
 
         def next(self):
             if self.selected_action < self.dock_actions_cnt - 1:
@@ -36,16 +51,12 @@ class Main(Activity):
                 left_end = left_start+icon_width
                 bottom_start = Display.k_height-1
                 bottom_end = Display.k_height-self.dock_height
-                try:
-                    activity_icon = Image.open('./activities/'+self.data['apps'][i]+'/icon.bmp')
-                except FileNotFoundError:
-                    activity_icon = None
-
+                
+                activity_icon = self.activity_icons[self.data['apps'][i]]['normal']
                 fill = 255
                 if i == self.selected_action:
                     fill = 0
-                    if activity_icon:
-                        activity_icon = ImageOps.invert(activity_icon)
+                    activity_icon = activity_icon = self.activity_icons[self.data['apps'][i]]['inverted']
                 
                 if i == self.dock_actions_cnt-1:
                     left_end = left_end - 1

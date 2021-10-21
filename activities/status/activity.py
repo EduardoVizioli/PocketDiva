@@ -13,6 +13,7 @@ class Main(Activity):
         self.battery = Battery(engine)
         self.clock = Clock()
         self.miku_status = {}
+        self.text_draw = TextDraw()
 
     def process(self,engine):
         miku = engine.getActivity('main').miku
@@ -42,7 +43,7 @@ class Main(Activity):
 
         self.spacement = self.StatusConstants.k_status_spacement
         for status_name in self.miku_status:
-            TextDraw.text(image,status_name+'@'+str(Utils.percent_from_value(self.miku_status[status_name],self.miku_max_status[status_name])),1,self.spacement)
+            self.text_draw.text(image,status_name+'@'+str(Utils.percent_from_value(self.miku_status[status_name],self.miku_max_status[status_name])),1,self.spacement)
             self.spacement = self.spacement + self.StatusConstants.k_status_spacement
 
         return image
