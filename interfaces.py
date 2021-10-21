@@ -6,7 +6,7 @@ k_resize_factor = 5
 
 class PcDisplay(Display):
     def __init__(self):
-        None
+        self.backlight_status_on = False
 
     def drawImage(self,image):
         import cv2
@@ -47,12 +47,12 @@ class RaspiDisplay(Display):
         self.gpio = engine.gpio
         self.gpioSetup()
         self.spiSetup()
-        #self.device.cshigh = False
         self.buffer = [0] * (Display.k_width * Display.k_height // 8)
         self.reset()
         self.setBias(4)
         self.setContrast(60)
         self.displayBuffer()
+        self.backlight_status_on = False
         self.backlightOn()
     
     def spiSetup(self):
@@ -139,16 +139,18 @@ class RaspiDisplay(Display):
         self.displayBuffer()
 
     def backlightOn(self):
+        self.backlight_status_on = True
         self.gpio.output(self.SpiInfo.k_led,self.gpio.LOW)
 
     def backlightOff(self):
+        self.backlight_status_on = False
         self.gpio.output(self.SpiInfo.k_led,self.gpio.HIGH)
     
     def backlightToggle(self):
-        if self.gpio.input(self.SpiInfo.k_led) == self.gpio.HIGH:
-            self.backlightOn()
-        else:
+        if self.backlight_status_on:
             self.backlightOff()
+        else:
+            self.backlightOn()
 
 class PcInput(Input):
     def __init__(self):

@@ -14,6 +14,9 @@ class Activity(object):
     
     def switch(self,engine):
         None
+    
+    def save(self,engine):
+        None
 
 #Defines the base characteristics of the display.
 class Display():

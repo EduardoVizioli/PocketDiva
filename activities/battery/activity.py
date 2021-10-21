@@ -4,7 +4,7 @@ import os
 class Main(Activity):
     def __init__(self,engine):
         self.engine = engine
-        self.minimum_battery_level = 5
+        self.minimum_battery_level = 15
 
     def process(self,engine):
         None

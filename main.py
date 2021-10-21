@@ -2,13 +2,16 @@ from interfaces import PcDisplay, PcInput, PcBattery, RaspiDisplay, RaspiInput, 
 from PIL import Image
 import traceback
 import threading
+import pickle
 import time
 import os
 
 k_activities_folder = 'activities'
 k_main_activity = 'clock'
+k_data_folder = 'data'
 k_updates_per_second = 4
 k_background_updates_per_second = 1
+k_autosave_interval_minutes = 5
 
 #This is the engine, it is responsible for controling the activities and its tasks
 class Engine():
@@ -24,15 +27,35 @@ class Engine():
         class ActivityNotFound(Exception):
             None
 
+    class Database():
+        def __init__(self):
+            None
+        
+        def store(self,folder,filename,obj):
+            file = open('./'+k_data_folder+'/'+str(folder)+'/'+filename+'.bin', 'wb')
+            pickle.dump(obj, file)
+            file.close()
+        
+        def get(self,folder,filename):
+            try:
+                print('./'+k_data_folder+'/'+str(folder)+'/'+filename+'.bin')
+                file = open('./'+k_data_folder+'/'+str(folder)+'/'+filename+'.bin', 'rb')
+                data = pickle.load(file)
+                file.close()
+                return data
+            except FileNotFoundError:
+                return None
+
     #Sets engine variables and defines the engine mode (PC or Pocket)
-    def __init__(self,updates_per_second,background_updates_per_second,mode):
+    def __init__(self,mode):
         self.running = False
         self.activities = {}
         self.current_activity = None
         self.backgroundThread = None
-        self.updates_per_second = updates_per_second
-        self.background_updates_per_second = background_updates_per_second
+        self.updates_per_second = None
+        self.setUpdatesPerSecond(k_updates_per_second)
         self.background_data = {}
+        self.database = self.Database()
 
         if mode == self.EngineModes.k_mode_pc:
             self.display = PcDisplay()
@@ -60,6 +83,17 @@ class Engine():
         except IndexError:
             raise self.EngineExceptions.ActivityNotFound
 
+    def getActivity(self,activity_name):
+        try:
+            return self.activities[activity_name]
+        except KeyError:
+            raise self.EngineExceptions.ActivityNotFound
+        except IndexError:
+            raise self.EngineExceptions.ActivityNotFound
+
+    def setUpdatesPerSecond(self,upds):
+        self.updates_per_second = upds
+
     #The main loop is responsible for processing, drawing and timming of the current activity.
     def _mainloop(self):
         while self.running:
@@ -75,21 +109,31 @@ class Engine():
             if wait > 0:
                 time.sleep(wait)
 
-    def setUpdatesPerSecond(self,upds):
-        self.updates_per_second = upds
-
     #The background processes run on a separate thread, it stays running all the time and is responsible for processing and timming of the modules background tasks.
     def _backgroundProcesses(self):
         while self.running:
             start = time.time()
             buttons = self.input.getBackgroundBuffer()
+
             for activity_name in self.activities:
                 self.background_data['buttons'] = buttons.copy()
                 self.activities[activity_name].backgroundProcess(self)
+            self._autosave()
+
             end = time.time()
-            wait = round((1/self.background_updates_per_second)-(end-start),5)
+            wait = round((1/k_background_updates_per_second)-(end-start),5)
             if wait > 0:
                 time.sleep(wait)
+
+    def _autosave(self):
+        current_time = time.localtime()
+        current_minute = int(time.strftime('%M',current_time))
+        current_second = int(time.strftime('%S',current_time))
+
+        if current_minute % k_autosave_interval_minutes == 0 and current_second == 0:
+            print('autosave',time.strftime('%H:%M:%S',current_time))
+            for activity_name in self.activities:
+                self.activities[activity_name].save(self)
 
     #Loads all activities into the memory and starts the thread for the background processes
     def _loadActivities(self):
@@ -132,11 +176,11 @@ def main():
     try:
         uname = os.uname()
         if uname.nodename == 'raspberrypi':
-            engine = Engine(k_updates_per_second,k_background_updates_per_second,Engine.EngineModes.k_mode_pocket)
+            engine = Engine(Engine.EngineModes.k_mode_pocket)
         else:
-            engine = Engine(k_updates_per_second,k_background_updates_per_second,Engine.EngineModes.k_mode_pc)
+            engine = Engine(Engine.EngineModes.k_mode_pc)
     except AttributeError:
-        engine = Engine(k_updates_per_second,k_background_updates_per_second,Engine.EngineModes.k_mode_pc)
+        engine = Engine(Engine.EngineModes.k_mode_pc)
     
 if __name__ == '__main__':
     main()
