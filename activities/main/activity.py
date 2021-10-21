@@ -1,40 +1,12 @@
 from abstract import Activity, Display
 from PIL import Image, ImageDraw, ImageOps
+from widgets import StatusBar
 from graphics import TextDraw
-from datetime import datetime
 import random
 import json
 import os
 
 class Main(Activity):
-    class StatusBar():
-        class Clock():
-            def __init__(self):
-                None
-
-            def draw(self,draw,image):
-                now = datetime.now()
-                TextDraw.text(image,now.strftime("%H@%M"),1,1)
-
-        class Battery():
-            def __init__(self,engine):
-                self.engine = engine
-
-            def draw(self,draw,image):
-                percentage = self.engine.battery.getPercentage()
-                TextDraw.text(image,percentage,68,1)
-
-        def __init__(self,engine):
-            self.line = (0,7,84,7)
-            self.clock = self.Clock()
-            self.battery = self.Battery(engine)
-            self.engine = engine
-        
-        def draw(self,draw,image):
-            draw.line(self.line, fill=0)
-            self.clock.draw(draw,image)
-            self.battery.draw(draw,image)
-
     class Dock():
         def __init__(self):
             self.selected_action = 0
@@ -81,7 +53,8 @@ class Main(Activity):
                 draw.rectangle((left_start,bottom_start,left_end,bottom_end),outline=0,fill=fill)
                 
                 if activity_icon:
-                    image.paste(activity_icon,(int(left_start)+2,int(bottom_end)+1))
+                    image_space = int(((left_end-left_start)/2)-(activity_icon.width/2))
+                    image.paste(activity_icon,(int(left_start)+image_space,int(bottom_end)+1))
 
     class Miku():
         class MikuProperties():
@@ -132,7 +105,7 @@ class Main(Activity):
 
     def __init__(self,engine):
         self.engine = engine
-        self.statusBar = self.StatusBar(engine)
+        self.statusBar = StatusBar(engine)
         self.dock = self.Dock()
         self.miku = self.Miku()
 

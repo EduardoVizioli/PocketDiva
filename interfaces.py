@@ -22,6 +22,7 @@ class RaspiDisplay(Display):
     class SpiInfo():
         k_dc = 23
         k_rst = 24
+        k_led = 16
         k_spi_port = 0
         k_spi_device = 0
         k_max_speed_hz = 4000000
@@ -43,22 +44,30 @@ class RaspiDisplay(Display):
         k_pcd8544_setvop = 0x80
 
     def __init__(self,engine):
-        import spidev
         self.gpio = engine.gpio
-        self.gpio.setup(self.SpiInfo.k_rst,self.gpio.OUT)
-        self.gpio.setup(self.SpiInfo.k_dc,self.gpio.OUT)
-        self.spidev = spidev
-        self.device = spidev.SpiDev()
-        self.device.open(self.SpiInfo.k_spi_port, self.SpiInfo.k_spi_device)
-        self.device.max_speed_hz = self.SpiInfo.k_max_speed_hz
-        self.device.mode = 0
+        self.gpioSetup()
+        self.spiSetup()
         #self.device.cshigh = False
         self.buffer = [0] * (Display.k_width * Display.k_height // 8)
         self.reset()
         self.setBias(4)
         self.setContrast(60)
         self.displayBuffer()
+        self.backlightOn()
     
+    def spiSetup(self):
+        import spidev
+        self.spidev = spidev
+        self.device = spidev.SpiDev()
+        self.device.open(self.SpiInfo.k_spi_port, self.SpiInfo.k_spi_device)
+        self.device.max_speed_hz = self.SpiInfo.k_max_speed_hz
+        self.device.mode = 0
+        
+    def gpioSetup(self):
+        self.gpio.setup(self.SpiInfo.k_rst,self.gpio.OUT)
+        self.gpio.setup(self.SpiInfo.k_dc,self.gpio.OUT)
+        self.gpio.setup(self.SpiInfo.k_led,self.gpio.OUT)
+
     def reset(self):
         self.gpio.output(self.SpiInfo.k_rst,self.gpio.LOW)
         time.sleep(0.1)
@@ -129,12 +138,25 @@ class RaspiDisplay(Display):
         
         self.displayBuffer()
 
+    def backlightOn(self):
+        self.gpio.output(self.SpiInfo.k_led,self.gpio.LOW)
+
+    def backlightOff(self):
+        self.gpio.output(self.SpiInfo.k_led,self.gpio.HIGH)
+    
+    def backlightToggle(self):
+        if self.gpio.input(self.SpiInfo.k_led) == self.gpio.HIGH:
+            self.backlightOn()
+        else:
+            self.backlightOff()
+
 class PcInput(Input):
     def __init__(self):
         from pynput.keyboard import Key, Listener
         self.listener = Listener(on_press=self.keyPress,on_release=self.keyRelease) 
         self.listener.start()
         self.buffer = []
+        self.background_buffer = []
         self.key_time = {}
         self.key = Key
 
@@ -151,19 +173,10 @@ class PcInput(Input):
 
         if key == self.key.up and self.Buttons.k_top not in self.buffer:
             self.buffer.append({'key':self.Buttons.k_top,'time':press_time})
+            self.background_buffer.append({'key':self.Buttons.k_top,'time':press_time})
         elif key == self.key.down and self.Buttons.k_bottom not in self.buffer:
             self.buffer.append({'key':self.Buttons.k_bottom,'time':press_time})
-        
-    def readBuffer(self):
-        buffer = self.buffer.copy()
-        self.buffer = []
-        return buffer
-    
-    def getKey(self):
-        try:
-            return self.buffer.pop()
-        except IndexError:
-            return None
+            self.background_buffer.append({'key':self.Buttons.k_bottom,'time':press_time})
 
 class RaspiInput(Input):
     class Buttons():
@@ -175,6 +188,7 @@ class RaspiInput(Input):
         self.gpio_buttons = [self.Buttons.k_top,self.Buttons.k_bottom]
         self.gpioSetup()
         self.buffer = []
+        self.background_buffer = []
         self.noise_threshold = 0.01
         self.max_hold = 10
 
@@ -187,25 +201,17 @@ class RaspiInput(Input):
         start_time = time.time()
 
         while self.gpio.input(key) == 1: # Wait for the button up
+            time.sleep(0.1)
             pass
             
         press_time = time.time() - start_time
         if press_time < self.max_hold and press_time > self.noise_threshold:
             if key == self.Buttons.k_top and self.Buttons.k_top not in self.buffer:
                 self.buffer.append({'key':self.Buttons.k_top,'time':press_time})
+                self.background_buffer.append({'key':self.Buttons.k_top,'time':press_time})
             elif key == self.Buttons.k_bottom and self.Buttons.k_bottom not in self.buffer:
                 self.buffer.append({'key':self.Buttons.k_bottom,'time':press_time})
-
-    def readBuffer(self):
-        buffer = self.buffer.copy()
-        self.buffer = []
-        return buffer
-    
-    def getKey(self):
-        try:
-            return self.buffer.pop()
-        except IndexError:
-            return None
+                self.background_buffer.append({'key':self.Buttons.k_bottom,'time':press_time})
 
 class PcBattery(Battery):
     def __init__(self):

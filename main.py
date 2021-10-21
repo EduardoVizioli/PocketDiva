@@ -32,6 +32,7 @@ class Engine():
         self.backgroundThread = None
         self.updates_per_second = updates_per_second
         self.background_updates_per_second = background_updates_per_second
+        self.background_data = {}
 
         if mode == self.EngineModes.k_mode_pc:
             self.display = PcDisplay()
@@ -70,7 +71,7 @@ class Engine():
                 self.display.drawImage(image)
 
             end = time.time()
-            wait = (1/self.updates_per_second)-(end-start)
+            wait = round((1/self.updates_per_second)-(end-start),5)
             if wait > 0:
                 time.sleep(wait)
 
@@ -81,10 +82,12 @@ class Engine():
     def _backgroundProcesses(self):
         while self.running:
             start = time.time()
+            buttons = self.input.getBackgroundBuffer()
             for activity_name in self.activities:
+                self.background_data['buttons'] = buttons.copy()
                 self.activities[activity_name].backgroundProcess(self)
             end = time.time()
-            wait = (1/self.background_updates_per_second)-(end-start)
+            wait = round((1/self.background_updates_per_second)-(end-start),5)
             if wait > 0:
                 time.sleep(wait)
 
@@ -125,6 +128,7 @@ class Engine():
             self._stop()
 
 def main():
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     try:
         uname = os.uname()
         if uname.nodename == 'raspberrypi':

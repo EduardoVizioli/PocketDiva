@@ -20,7 +20,17 @@ class Display():
     k_width = 84
     k_height = 48
     k_rowpixels = k_height//6
+
     def drawImage(self,image):
+        None
+
+    def backlightOn(self):
+        None
+
+    def backlightOff(self):
+        None
+
+    def backlightToggle(self):
         None
 
 #Defines the base characteristics of the input device.
@@ -29,11 +39,21 @@ class Input():
         k_top = 0
         k_bottom = 1
     
+    def getBackgroundBuffer(self):
+        background_buffer = self.background_buffer.copy()
+        self.background_buffer = []
+        return background_buffer
+
     def readBuffer(self):
-        raise NotImplementedError
-    
+        buffer = self.buffer.copy()
+        self.buffer = []
+        return buffer
+
     def getKey(self):
-        raise NotImplementedError
+        try:
+            return self.buffer.pop()
+        except IndexError:
+            return None
 
 
 class Battery():
