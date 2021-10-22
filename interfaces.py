@@ -236,5 +236,8 @@ class RaspiBattery(Battery):
         address = 0x36
         read = self.bus.read_word_data(address, 0X04)
         swapped = self.struct.unpack("<H", self.struct.pack(">H", read))[0]
-        capacity = swapped/256
-        return int(capacity)
+        percentage = swapped/256
+        if percentage > 100:
+            percentage = 100
+        return int(percentage)
+        

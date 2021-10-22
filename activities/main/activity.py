@@ -76,7 +76,10 @@ class Main(Activity):
             k_walking_prob = 15
             k_sleep_time = 10
             k_wake_up_time = 8
-            k_maximum_status = {'hunger':14400}
+            k_maximum_status = {
+                'hunger':14400,
+                'shower':86400
+            }
             
         def __init__(self,engine):
             self.textures = {}
@@ -94,7 +97,8 @@ class Main(Activity):
         def _load_data(self,engine):
             old_miku = engine.database.get(self.MikuConstants.k_data_folder,self.MikuConstants.k_data_filename)
             if old_miku != None:
-                self.status = old_miku.status
+                for status in old_miku.status:
+                    self.status[status] = old_miku.status[status]
 
         def _load_textures(self):
             for texture_filename in os.listdir(self.MikuConstants.k_textures_folder):
@@ -134,7 +138,8 @@ class Main(Activity):
             self.walk()
 
         def backgroundProcess(self,engine):
-            self.status['hunger'] = self.status['hunger'] - 1
+            for status_name in self.status:
+                self.status[status_name] = self.status[status_name] - 1
 
         def draw(self,draw,image):
             miku_image = self.textures['miku_idle']

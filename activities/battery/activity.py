@@ -12,7 +12,8 @@ class Main(Activity):
     def backgroundProcess(self,engine):
         percent = self.engine.battery.getPercentage()
         if percent <= self.minimum_battery_level:
-            os.system("sudo shutdown -h now")
+            #os.system("sudo shutdown -h now")
+            None
 
     def draw(self):
         return None
