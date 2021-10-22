@@ -1,5 +1,5 @@
 from interfaces import PcDisplay, PcInput, PcBattery, RaspiDisplay, RaspiInput, RaspiBattery
-from PIL import Image
+from PIL import Image, ImageDraw
 import traceback
 import threading
 import pickle
@@ -101,7 +101,11 @@ class Engine():
             if self.current_activity != None:
                 activity = self.activities[self.current_activity]
                 activity.process(self)
-                image = activity.draw()
+
+                image = Image.new("1", (self.display.k_width, self.display.k_height))
+                draw = ImageDraw.Draw(image)
+                draw.rectangle((0,0,self.display.k_width,self.display.k_height), outline=255, fill=255)
+                image = activity.draw(draw,image)
                 self.display.drawImage(image)
 
             end = time.time()

@@ -1,5 +1,5 @@
 from abstract import Activity, Display
-from PIL import Image, ImageDraw, ImageOps
+from PIL import Image, ImageOps
 from widgets import StatusBar
 from utils import Utils
 import random
@@ -42,7 +42,7 @@ class Main(Activity):
             try:
                 engine.setActivity(self.data['apps'][self.selected_action])
             except engine.EngineExceptions.ActivityNotFound:
-                None
+                pass
         
         def draw(self,draw,image):
             for i in range(0,self.dock_actions_cnt):
@@ -159,6 +159,7 @@ class Main(Activity):
         self.miku = self.Miku(engine)
 
     def process(self,engine):
+        self.miku.process()
         key_pressed = engine.input.getKey()
         if key_pressed == None:
             return
@@ -174,16 +175,10 @@ class Main(Activity):
     def switch(self,engine):
         engine.setUpdatesPerSecond(4)
 
-    def draw(self):
-        image = Image.new("1", (Display.k_width, Display.k_height))
-        draw = ImageDraw.Draw(image)
-        draw.rectangle((0,0,Display.k_width,Display.k_height), outline=255, fill=255)
-        
+    def draw(self,draw,image):
         self.statusBar.draw(draw,image)
         self.dock.draw(draw,image)
-        self.miku.process()
         self.miku.draw(draw,image)
-
         return image
 
     def save(self,engine):

@@ -1,7 +1,6 @@
-from abstract import Activity, Display
+from abstract import Activity
 from widgets import Battery, Clock
-from PIL import Image, ImageDraw
-from datetime import datetime
+from PIL import Image
 
 class Main(Activity):
     class BathConstants():
@@ -24,19 +23,12 @@ class Main(Activity):
             engine.setActivity('main')
         
         self.time = self.time - 1
-        
-    def backgroundProcess(self,engine):
-        None
 
     def switch(self,engine):
         self.time = self.BathConstants.k_bath_time
         engine.setUpdatesPerSecond(1)
 
-    def draw(self):
-        image = Image.new('1', (Display.k_width, Display.k_height))
-        draw = ImageDraw.Draw(image)
-        draw.rectangle((0,0,Display.k_width,Display.k_height), outline=255, fill=255)
-
+    def draw(self,draw,image):
         top = 2
         if self.time%2 == 0:
             top = 6

@@ -6,7 +6,7 @@ class Activity(object):
     def process(self,engine):
         None
 
-    def draw(self):
+    def draw(self,draw,image):
         return None
 
     def backgroundProcess(self,engine):
