@@ -76,6 +76,9 @@ class Main(Activity):
             k_walking_prob = 15
             k_sleep_time = 10
             k_wake_up_time = 8
+            k_status_complain = {
+                'hunger':3600
+            }
             k_maximum_status = {
                 'hunger':14400,
                 'shower':86400
@@ -85,6 +88,7 @@ class Main(Activity):
             self.textures = {}
             self.position = self.MikuConstants.k_start_position
             self.moving_to = self.MikuConstants.k_start_position
+            self.current_texture = 'miku_idle'
             self.status = {}
             self._initialize_status()
             self._load_data(engine)
@@ -118,7 +122,7 @@ class Main(Activity):
         def is_moving(self):
             return self.position != self.moving_to
 
-        def walk(self):
+        def _walk(self):
             if (not self.is_moving()) and random.randint(1,self.MikuConstants.k_walking_prob) == 1:
                 self.moving_to = [random.randint(-10,60),random.randint(8,17)]
             
@@ -134,15 +138,22 @@ class Main(Activity):
             if self.position[1] > self.moving_to[1]:
                 self.position[1] = self.position[1] - 1
 
+        def _check_status(self):
+            self.current_texture = 'miku_idle'
+            
+            if self.status['hunger'] < self.MikuConstants.k_status_complain['hunger']:
+                self.current_texture = 'miku_hungry'
+
         def process(self):
-            self.walk()
+            self._walk()
+            self._check_status()
 
         def backgroundProcess(self,engine):
             for status_name in self.status:
                 self.status[status_name] = self.status[status_name] - 1
 
         def draw(self,draw,image):
-            miku_image = self.textures['miku_idle']
+            miku_image = self.textures[self.current_texture]
 
             if self.position[0] > self.moving_to[0]:
                 miku_image = ImageOps.mirror(miku_image)

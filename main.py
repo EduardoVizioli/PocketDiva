@@ -91,6 +91,9 @@ class Engine():
         except IndexError:
             raise self.EngineExceptions.ActivityNotFound
 
+    def currentActivity(self):
+        return self.current_activity
+
     def setUpdatesPerSecond(self,upds):
         self.updates_per_second = upds
 

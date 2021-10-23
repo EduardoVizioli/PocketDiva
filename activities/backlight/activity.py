@@ -4,7 +4,7 @@ import time
 class Main(Activity):
     def __init__(self,engine):
         self.last_interaction = time.time()
-        self.backlight_timeout = 10
+        self.backlight_timeout = 15
         self.backlight_battery_percent_limit = 20
             
     def backgroundProcess(self,engine):
