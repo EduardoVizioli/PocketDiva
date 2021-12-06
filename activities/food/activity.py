@@ -7,7 +7,7 @@ class Main(Activity):
         k_textures_folder = './textures/food'
         k_burger_texture = 'burger.bmp'
         k_burger_time = 6
-        k_burger_heal = 5000
+        k_burger_heal = 20000
 
     def __init__(self,engine):
         self.engine = engine

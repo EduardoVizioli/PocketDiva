@@ -14,10 +14,6 @@ class Main(Activity):
 
     def __init__(self,engine):
         self.clock = self.Clock()
-        self.engine = engine
-
-    def __init__(self,engine):
-        self.clock = self.Clock()
         self.battery = Battery(engine)
         self.engine = engine
 

@@ -123,6 +123,7 @@ class RaspiDisplay(Display):
         # Iterate through the 6 y axis rows.
         # Grab all the pixels from the image, faster than getpixel.
         pix = image.load()
+        #Bank
         for row in range(6):
             # Iterate through all 83 x axis columns.
             for x in range(84):
@@ -132,6 +133,7 @@ class RaspiDisplay(Display):
                 for bit in [0, 1, 2, 3, 4, 5, 6, 7]:
                     bits = bits << 1
                     bits |= 1 if pix[(x, row*self.k_rowpixels+7-bit)] == 0 else 0
+                    
                 # Update buffer byte and increment to next byte.
                 self.buffer[index] = bits
                 index += 1
@@ -202,18 +204,21 @@ class RaspiInput(Input):
     def keyPress(self,key):
         start_time = time.time()
 
-        while self.gpio.input(key) == 1: # Wait for the button up
-            time.sleep(0.1)
+        #Wait for the button up
+        while self.gpio.input(key) == 1:
             pass
-            
+        
         press_time = time.time() - start_time
         if press_time < self.max_hold and press_time > self.noise_threshold:
             if key == self.Buttons.k_top and self.Buttons.k_top not in self.buffer:
-                self.buffer.append({'key':self.Buttons.k_top,'time':press_time})
-                self.background_buffer.append({'key':self.Buttons.k_top,'time':press_time})
+                key_data = {'key':self.Buttons.k_top,'time':press_time}
             elif key == self.Buttons.k_bottom and self.Buttons.k_bottom not in self.buffer:
-                self.buffer.append({'key':self.Buttons.k_bottom,'time':press_time})
-                self.background_buffer.append({'key':self.Buttons.k_bottom,'time':press_time})
+                key_data = {'key':self.Buttons.k_bottom,'time':press_time}
+
+            if not key_data['key'] in [k['key'] for k in self.buffer]:
+                self.buffer.append(key_data)
+            if not key_data['key'] in [k['key'] for k in self.background_buffer]:
+                self.background_buffer.append(key_data)
 
 class PcBattery(Battery):
     def __init__(self):
