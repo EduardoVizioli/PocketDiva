@@ -77,10 +77,10 @@ class Main(Activity):
             k_sleep_time = 10
             k_wake_up_time = 8
             k_status_complain = {
-                'hunger':3600
+                'hunger':7200
             }
             k_maximum_status = {
-                'hunger':14400,
+                'hunger':43200,
                 'shower':86400
             }
             
