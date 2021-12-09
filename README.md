@@ -14,12 +14,11 @@
  pip install pynput<br>
  pip install psutil<br>
  pip install opencv-python<br>
+ Now that all necessary dependencies are installed, you can run the program by opening a terminal in the directory you extracted the program files, and running the following command "python ./main.py".
 <br>
 <h3>Controls</h3>
-Now that all necessary dependencies are installed, you can run the program by opening a terminal in the directory you extracted the program files, and running the following command "python ./main.py".
-
 To control the program, you can use the up and down arrows from the keyboard, the up arrow switches between options, and de down arrow selecs them.<br>
-The program will start in the "lockscren" mode, to go to the menu, just press the select button "down arrow".
+The program will start in the lockscren mode, to go to the menu, just press the select button down arrow.
 
 # Running(Raspberry PI)
  #Todo
