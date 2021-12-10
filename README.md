@@ -23,5 +23,5 @@ The program will start in the lockscren mode, to go to the menu, just press the 
 # Running(Raspberry PI)
  #Todo
 
-# How modules work, and how to make one
+# How activities work, and how to make one
  #Todo
