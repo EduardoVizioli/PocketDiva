@@ -1,22 +1,37 @@
 from abstract import Display, Input, Battery
 import numpy
 import time
+from PIL import ImageOps
 
 k_resize_factor = 5
 
 class PcDisplay(Display):
     def __init__(self):
         self.backlight_status_on = False
+        self.inverted = False
 
     def drawImage(self,image):
         import cv2
         image = image.resize((Display.k_width*k_resize_factor,Display.k_height*k_resize_factor))
+        if self.inverted:
+            image = ImageOps.invert(image.convert('RGB'))
+        
         array = numpy.float32(image) 
         cv_image = cv2.cvtColor(array, cv2.CV_8UC1)
         cv2.imshow("Pocket Diva", cv_image)
         key = cv2.waitKey(1)
         if cv2.getWindowProperty('Pocket Diva', 0) == -1:
             raise KeyboardInterrupt
+
+    def setDisplayInverted(self):
+        self.inverted = True
+
+    def setDisplayNormal(self):
+        self.inverted = False
+
+    def getDisplayInverted(self):
+        return self.inverted
+    
 
 class RaspiDisplay(Display):
     class SpiInfo():
@@ -54,6 +69,8 @@ class RaspiDisplay(Display):
         self.displayBuffer()
         self.backlight_status_on = False
         self.backlightOn()
+        self.inverted = False
+        self.setDisplayNormal()
     
     def spiSetup(self):
         import spidev
@@ -112,9 +129,14 @@ class RaspiDisplay(Display):
 
     def setDisplayInverted(self):
         self.command(self.DisplayCommands.k_pcd8544_displaycontrol | self.DisplayCommands.k_pcd8544_displayinverted)
+        self.inverted = True
 
     def setDisplayNormal(self):
         self.command(self.DisplayCommands.k_pcd8544_displaycontrol | self.DisplayCommands.k_pcd8544_displaynormal)
+        self.inverted = False
+
+    def getDisplayInverted(self):
+        return self.inverted
 
     def drawImage(self,image):
         if image.mode != '1':
